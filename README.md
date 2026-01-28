@@ -1,6 +1,6 @@
 # Qwen3-TTS Nix Flake
 
-Full-featured Qwen3-TTS text-to-speech system for NixOS with voice cloning support.
+Qwen3-TTS flake for NixOS with voice cloning support.
 
 ## Quick Start
 
@@ -9,7 +9,7 @@ Full-featured Qwen3-TTS text-to-speech system for NixOS with voice cloning suppo
 Just run:
 
 ```bash
-nix run
+nix run . -- "Your custom text here"
 ```
 
 ### Voice Cloning Mode
@@ -19,26 +19,8 @@ To clone a voice, create two files in the same directory as the flake:
 1. **`training_audio.wav`** - A 3+ second audio clip of the voice you want to clone
 2. **`transcript.txt`** - The exact text spoken in the training audio
 
-Then run:
-
-```bash
-nix run
-```
-
-The script will automatically detect these files and use voice cloning mode!
-
-#### Custom Text with Voice Cloning
-
-To generate custom text with your cloned voice:
-
 ```bash
 nix run . -- "Your custom text here"
-```
-
-For example:
-
-```bash
-nix run . -- "This is a test of my cloned voice speaking custom text."
 ```
 
 This will:
@@ -78,7 +60,7 @@ python
 
 ## Available Models
 
-The demo uses the 0.6B model for speed, but you can use any model:
+The demo uses the 0.6B model for speed, but you can modify the flake to use any model:
 
 - `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` (fastest, demo default)
 - `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` (better quality)
@@ -128,13 +110,10 @@ Chinese, English, Japanese, Korean, German, French, Russian, Portuguese, Spanish
 - First run will download model weights (can take a few minutes)
 - Models are cached in `~/.cache/huggingface/`
 - CPU inference works but is slower than GPU
-- Framework laptop should have good GPU support with proper drivers
 
 ## NixOS Integration
 
 You can add this flake as an overlay to your NixOS system to make `qwen3-tts` available system-wide.
-
-### Method 1: Using flake inputs (recommended)
 
 In your `flake.nix`:
 
@@ -142,9 +121,7 @@ In your `flake.nix`:
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    qwen3-tts.url = "path:/home/ilios/Projects/qwen3-tts-test";
-    # Or from a git repo:
-    # qwen3-tts.url = "github:yourusername/qwen3-tts-flake";
+    qwen3-tts.url = "github:ilioscio/qwen3-tts-flake";
   };
 
   outputs = { self, nixpkgs, qwen3-tts, ... }: {
@@ -163,39 +140,6 @@ In your `flake.nix`:
       ];
     };
   };
-}
-```
-
-### Method 2: Direct overlay import
-
-In your `configuration.nix`:
-
-```nix
-{ config, pkgs, ... }:
-
-let
-  qwen3-tts-overlay = (import /home/ilios/Projects/qwen3-tts-test).overlays.default;
-in
-{
-  nixpkgs.overlays = [ qwen3-tts-overlay ];
-  
-  environment.systemPackages = with pkgs; [
-    qwen3-tts
-  ];
-}
-```
-
-### Method 3: Add to your user packages
-
-In your `home-manager` configuration:
-
-```nix
-{ config, pkgs, ... }:
-
-{
-  home.packages = [
-    (import /home/ilios/Projects/qwen3-tts-test).packages.${pkgs.system}.default
-  ];
 }
 ```
 
